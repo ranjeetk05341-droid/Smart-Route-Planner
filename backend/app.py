@@ -48,15 +48,23 @@ def create_app():
     CORS(app, supports_credentials=True)
 
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'smart-route-planner-academic-secret-key-2026')
-    db_path = os.path.join(current_dir, 'smart_route.db')
+    
+    # Resilient SQLite database storage for both local and serverless (Vercel/AWS) environments
+    if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME') or not os.access(current_dir, os.W_OK):
+        db_path = os.path.join('/tmp', 'smart_route.db')
+    else:
+        db_path = os.path.join(current_dir, 'smart_route.db')
+    
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # Initialize Database
-    init_db(app)
-
-    with app.app_context():
-        seed_sample_data()
+    # Initialize Database safely
+    try:
+        init_db(app)
+        with app.app_context():
+            seed_sample_data()
+    except Exception as e:
+        print(f"[Database Initialization Notice] {e}")
 
     # Register Blueprints
     app.register_blueprint(auth_bp)
@@ -207,6 +215,7 @@ def create_app():
 
 # WSGI Application entry point (Compatible with Vercel Serverless, Gunicorn & Local Flask)
 app = create_app()
+handler = app
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
