@@ -409,9 +409,19 @@ class OSRMRoutingService:
         Supports: Car (DRIVE), Bicycle (BICYCLE), Walking (WALK), and Two-Wheeler (TWO_WHEELER).
         """
         url = "https://routes.googleapis.com/directions/v2:computeRoutes"
+        
+        referer = os.environ.get('APP_URL') or 'http://127.0.0.1:5000/'
+        try:
+            from flask import request
+            if request and hasattr(request, 'headers') and request.headers.get('Referer'):
+                referer = request.headers.get('Referer')
+        except Exception:
+            pass
+
         headers = {
             'Content-Type': 'application/json',
             'X-Goog-Api-Key': api_key,
+            'Referer': referer,
             'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.description,routes.legs'
         }
 

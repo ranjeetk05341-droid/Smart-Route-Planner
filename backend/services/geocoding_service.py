@@ -78,49 +78,81 @@ class GeocodingService:
     @classmethod
     def _search_google(cls, query, api_key, limit):
         results = []
+        referer = os.environ.get('APP_URL') or 'http://127.0.0.1:5000/'
         try:
-            # 1. Query Google Places Autocomplete API
-            auto_url = "https://maps.googleapis.com/maps/api/place/autocomplete/json"
-            params = {
-                'input': query,
-                'key': api_key
+            from flask import request
+            if request and hasattr(request, 'headers') and request.headers.get('Referer'):
+                referer = request.headers.get('Referer')
+        except Exception:
+            pass
+
+        try:
+            # 1. Query Google Places API (New) Autocomplete
+            auto_new_url = "https://places.googleapis.com/v1/places:autocomplete"
+            headers = {
+                'Content-Type': 'application/json',
+                'X-Goog-Api-Key': api_key,
+                'Referer': referer
             }
-            resp = requests.get(auto_url, params=params, timeout=4.0)
+            resp = requests.post(auto_new_url, json={'input': query}, headers=headers, timeout=4.0)
             if resp.status_code == 200:
                 data = resp.json()
-                status = data.get('status')
-                if status == 'OK':
-                    predictions = data.get('predictions', [])[:limit]
-                    for p in predictions:
-                        place_id = p.get('place_id')
-                        display_name = p.get('description', '')
-                        # Resolve coordinates via Geocoding API
-                        geo_url = "https://maps.googleapis.com/maps/api/geocode/json"
-                        geo_resp = requests.get(geo_url, params={'place_id': place_id, 'key': api_key}, timeout=3.5)
-                        if geo_resp.status_code == 200:
-                            geo_data = geo_resp.json()
-                            geo_results = geo_data.get('results', [])
-                            if geo_results:
-                                loc = geo_results[0].get('geometry', {}).get('location', {})
-                                lat = loc.get('lat')
-                                lng = loc.get('lng')
-                                if lat is not None and lng is not None:
-                                    results.append({
-                                        'display_name': display_name,
-                                        'lat': float(lat),
-                                        'lon': float(lng),
-                                        'type': 'google_place',
-                                        'source': 'Google Places Platform'
-                                    })
-                elif status == 'REQUEST_DENIED':
-                    err_msg = data.get('error_message', 'Request denied by Google Cloud.')
-                    print(f"[Google Cloud Places API] REQUEST_DENIED: {err_msg}")
-                    if 'billing' in err_msg.lower():
-                        print("[Google Cloud Billing Alert] Billing is not enabled for this Google Cloud Project. Please enable billing at https://console.cloud.google.com/billing")
-                    elif 'referer' in err_msg.lower() or 'restriction' in err_msg.lower():
-                        print("[Google Cloud Security Alert] GOOGLE_MAPS_SERVER_KEY appears to have HTTP referrer restrictions. Use an unrestricted or IP-restricted key for server requests.")
-                elif status not in ('ZERO_RESULTS',):
-                    print(f"[Google Cloud Places Notice] Status: {status} - {data.get('error_message', '')}")
+                suggestions = data.get('suggestions', [])[:limit]
+                for s in suggestions:
+                    pred = s.get('placePrediction', {})
+                    place_id = pred.get('placeId')
+                    text_obj = pred.get('text', {})
+                    display_name = text_obj.get('text', query)
+                    if place_id:
+                        detail_headers = {
+                            'X-Goog-Api-Key': api_key,
+                            'X-Goog-FieldMask': 'id,displayName,location',
+                            'Referer': referer
+                        }
+                        det_resp = requests.get(f"https://places.googleapis.com/v1/places/{place_id}", headers=detail_headers, timeout=3.5)
+                        if det_resp.status_code == 200:
+                            loc_data = det_resp.json().get('location', {})
+                            lat = loc_data.get('latitude')
+                            lon = loc_data.get('longitude')
+                            if lat is not None and lon is not None:
+                                results.append({
+                                    'display_name': display_name,
+                                    'lat': float(lat),
+                                    'lon': float(lon),
+                                    'type': 'google_place',
+                                    'source': 'Google Places Platform'
+                                })
+
+            # 2. If Places API (New) yielded no results, query legacy Places endpoint
+            if not results:
+                auto_url = "https://maps.googleapis.com/maps/api/place/autocomplete/json"
+                params = {'input': query, 'key': api_key}
+                resp = requests.get(auto_url, params=params, headers={'Referer': referer}, timeout=4.0)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    status = data.get('status')
+                    if status == 'OK':
+                        predictions = data.get('predictions', [])[:limit]
+                        for p in predictions:
+                            place_id = p.get('place_id')
+                            display_name = p.get('description', '')
+                            geo_url = "https://maps.googleapis.com/maps/api/geocode/json"
+                            geo_resp = requests.get(geo_url, params={'place_id': place_id, 'key': api_key}, headers={'Referer': referer}, timeout=3.5)
+                            if geo_resp.status_code == 200:
+                                geo_data = geo_resp.json()
+                                geo_results = geo_data.get('results', [])
+                                if geo_results:
+                                    loc = geo_results[0].get('geometry', {}).get('location', {})
+                                    lat = loc.get('lat')
+                                    lng = loc.get('lng')
+                                    if lat is not None and lng is not None:
+                                        results.append({
+                                            'display_name': display_name,
+                                            'lat': float(lat),
+                                            'lon': float(lng),
+                                            'type': 'google_place',
+                                            'source': 'Google Places Platform'
+                                        })
 
             # 2. If Places returned no results, query Google Geocoding API directly
             if not results:
