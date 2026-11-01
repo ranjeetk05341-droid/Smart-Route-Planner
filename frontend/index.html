@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Route Planner | Intelligent Transportation & Multi-Modal Navigation Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans selection:bg-[#1a73e8] selection:text-white">
+
+  <!-- Header -->
+  <header class="h-16 border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-50 px-6 sm:px-12 flex items-center justify-between shadow-sm">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-[#1a73e8] flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+        <i data-lucide="navigation" class="w-4 h-4"></i>
+      </div>
+      <div>
+        <div class="font-extrabold text-base tracking-tight text-slate-900">SMART ROUTE PLANNER</div>
+        <div class="text-[11px] text-[#1a73e8] font-semibold tracking-wider uppercase">College Final-Year Capstone Project</div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <a href="/login" class="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition">Sign In</a>
+      <a href="/dashboard" class="px-4 py-2 bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-bold rounded-lg shadow-sm flex items-center gap-1.5 transition">
+        Launch Map <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="py-16 sm:py-24 px-6 sm:px-12 max-w-5xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#1a73e8] text-xs font-semibold mb-6">
+      <span class="w-2 h-2 rounded-full bg-[#188038] animate-pulse"></span>
+      OpenStreetMap + Google Maps Dual-Engine Architecture
+    </div>
+
+    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 mb-6 leading-tight">
+      Intelligent Route Optimization System for <span class="text-[#1a73e8]">Real-World Navigation Problems</span>
+    </h1>
+
+    <p class="text-slate-600 text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+      A full-featured multi-modal navigation platform combining real-time global autocomplete, authentic road geometry, multi-criteria cost scoring, and travel modes: <b>Driving 🚗</b>, <b>Cycling 🚲</b>, and <b>Walking 🚶</b>.
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <a href="/dashboard" class="px-6 py-3.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold text-sm rounded-xl shadow-md shadow-blue-500/25 transition flex items-center gap-2">
+        <i data-lucide="map" class="w-4 h-4"></i> Open Navigation Map
+      </a>
+      <a href="#features" class="px-6 py-3.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-xl transition flex items-center gap-2">
+        <i data-lucide="compass" class="w-4 h-4"></i> Explore Features
+      </a>
+    </div>
+  </section>
+
+  <!-- Key Pillars / Feature Grid -->
+  <section id="features" class="py-12 px-6 sm:px-12 max-w-5xl mx-auto border-t border-slate-200">
+    <div class="text-center mb-10">
+      <h2 class="text-2xl font-bold text-slate-900 mb-2">Google Maps-Like Features with Academic Intelligence</h2>
+      <p class="text-xs text-slate-500">True road routing with algorithmic decision-making and zero simulated fake information.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
+        <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#1a73e8] flex items-center justify-center mb-3">
+          <i data-lucide="search" class="w-5 h-5"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mb-1.5">Universal Location Search</h3>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Search any city, state, country, area, street, or famous landmark worldwide with dynamic autocomplete. Zero hardcoded entries.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#188038] flex items-center justify-center mb-3">
+          <i data-lucide="shuffle" class="w-5 h-5"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mb-1.5">Multi-Modal Transport Modes</h3>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Switch between Car (Driving), Bicycle (Cycling), and Walking with accurate travel times, energy consumption, and turn-by-turn maneuvers.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
+        <div class="w-10 h-10 rounded-xl bg-amber-50 text-[#f29900] flex items-center justify-center mb-3">
+          <i data-lucide="cpu" class="w-5 h-5"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mb-1.5">Shortest vs Fastest Analysis</h3>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Compares Dijkstra's algorithm and goal-directed A* (Haversine heuristic), distinctly identifying the fastest route and shortest distance.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="mt-auto py-6 border-t border-slate-200 px-6 sm:px-12 text-center text-xs text-slate-500 bg-white">
+    <p>Smart Route Planner &bull; College Final-Year Project Demonstration &bull; Powered by OpenStreetMap & Python</p>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
